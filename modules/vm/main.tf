@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     yandex = {
-      source = "yandex-cloud/yandex"
+      source  = "yandex-cloud/yandex"
       version = ">=0.61.0"
     }
   }
@@ -12,7 +12,7 @@ data "yandex_compute_image" "my_image" {
 }
 
 resource "yandex_compute_instance" "vm" {
-  name    = "terraform-${var.instance_family_image}"
+  name = "terraform-${var.instance_family_image}"
   zone = var.zone
 
   resources {
