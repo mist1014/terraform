@@ -61,3 +61,43 @@ module "vm_2" {
   vpc_subnet_id         = yandex_vpc_subnet.subnet-2.id
   zone                  = yandex_vpc_subnet.subnet-2.zone
 }
+
+resource "yandex_lb_target_group" "tg-1" {
+  name = "tg-1"
+  target {
+    subnet_id = yandex_vpc_subnet.subnet-1.id
+    address   = module.vm_1.internal_ip_address_vm
+  }
+  target {
+    subnet_id = yandex_vpc_subnet.subnet-2.id
+    address   = module.vm_2.internal_ip_address_vm
+  }
+}
+
+resource "yandex_lb_network_load_balancer" "lb-1" {
+  name = "lb-1"
+  listener {
+    name        = "test-listener"
+    port        = 80
+    target_port = 80
+    protocol    = "tcp"
+    external_address_spec {
+      ip_version = "ipv4"
+    }
+  }
+  attached_target_group {
+    target_group_id = yandex_lb_target_group.tg-1.id
+    healthcheck {
+      name                = "http"
+      interval            = 2
+      timeout             = 1
+      unhealthy_threshold = 2
+      healthy_threshold   = 2
+      http_options {
+        port = 80
+        path = "/"
+      }
+    }
+  }
+}
+
